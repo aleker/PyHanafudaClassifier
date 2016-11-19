@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import computing
 import argparse
 
+name = ''
 
 name2 = ''
 
