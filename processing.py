@@ -6,9 +6,7 @@ from matplotlib import pyplot as plt
 import computing
 import argparse
 
-name = ''
 
-name2 = ''
 
 
 def picture_processing(file_path):
