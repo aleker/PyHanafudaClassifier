@@ -12,10 +12,6 @@ proces_input = 'pictures/'
 
 # { name_of_file : [month, pkt, [colours]}
 facts_dictionary = {}
-# TODO make class
-DecisionStruct = namedtuple("DecisionStruct", "name_of_file colours_amount_array isRibbon")
-DecisionStruct.__new__.__defaults__ = (None, [], False)
-
 colour_boundaries = [	# ([B,G,R], [B,G,R])
 	([4, 9, 86], [80, 88, 220]),		# RED
 	([80, 31, 4], [220, 100, 60]),		# BLUE
@@ -66,7 +62,7 @@ def compute_parameters():
 		image = cv2.cvtColor (original_image, cv2.COLOR_BGR2GRAY)
 
 		# COMPUTE PARAMETERS:
-		# colour count
+		# colour count:
 		(array_of_colour_values, _) = find_colour_count(original_image, file_key)
 		facts_dictionary[file_key].append(array_of_colour_values)
 
@@ -77,20 +73,3 @@ def save_file (file_name, output_folder, result):
 		os.makedirs(output_path)
 	new_path = os.path.join (output_path, file_name + name)
 	cv2.imwrite (new_path, result)
-
-
-def auto_canny (image, sigma=0.33):
-	# FROM http://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
-	# This trick simply takes the median of the image, and then constructs upper and lower
-	# thresholds based on a percentage of this median. In practice, sigma=0.33  tends to obtain good results.
-
-	# compute the median of the single channel pixel intensities
-	v = np.median (image)
-
-	# apply automatic Canny edge detection using the computed median
-	lower = int (max (0, (1.0 - sigma) * v))
-	upper = int (min (255, (1.0 + sigma) * v))
-	edged = cv2.Canny (image, lower, upper)
-
-	# return the edged image
-	return edged

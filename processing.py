@@ -4,35 +4,36 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import computing
+import card
 import argparse
 
 
-
-
 def picture_processing(file_path):
+	# TODO fill class
 	# READ IMAGE:
 	filename = os.path.join(os.getcwd(), file_path)
 	original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
 	image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
 
+	current_card = card.Card(os.path.basename(file_path))
+
 	# PROCESSING:
 	# find ribbon:
-	(colours_array, is_ribbon) = find_ribbon(original_image, os.path.basename(file_path))
+	(current_card.colours_count_array, current_card.isRibbon) = find_ribbon(original_image, os.path.basename(file_path))
+
 
 	# DECISION:
-	# TODO fill structure
-	summary = computing.DecisionStruct(os.path.basename(file_path), colours_array, isRibbon=is_ribbon)
-	make_decision(summary)
+	make_decision(current_card)
 
 
-def find_ribbon(image, file_name):
-	results_array, masks_array = computing.find_colour_count(image, file_name)
+def find_ribbon (image, file_name):
+	results_array, masks_array = computing.find_colour_count (image, file_name)
 	ribbon_colour = None
-	for n, mask in enumerate(masks_array[:2]):
+	for n, mask in enumerate (masks_array[:2]):
 		# TODO one more ribbon
 		# red mask
 		height, width = image.shape[:2]
-		red_picture = np.zeros(image.shape, np.uint8)
+		red_picture = np.zeros (image.shape, np.uint8)
 		red_picture[:] = (0, 0, 255)
 		red_mask = cv2.bitwise_and (red_picture, red_picture, mask=mask)
 
@@ -40,17 +41,17 @@ def find_ribbon(image, file_name):
 		edges = cv2.Canny (red_mask, threshold1=100, threshold2=600, apertureSize=5)
 
 		# contours of ribbon
-		(_, cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:10]
+		(_, cnts, _) = cv2.findContours (edges.copy (), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		cnts = sorted (cnts, key=cv2.contourArea, reverse=True)[:10]
 		ribbon = None
 		for c in cnts:
-			if cv2.contourArea(c) > 3000 and cv2.arcLength(c, closed=True) > 200:
-				if tuple(c[c[:,:,1].argmin()][0])[1] > (height/3) or \
-						tuple(c[c[:,:,1].argmax()][0])[1] < (height*2/3):
+			if cv2.contourArea (c) > 3000 and cv2.arcLength (c, closed=True) > 200:
+				if tuple (c[c[:, :, 1].argmin ()][0])[1] > (height / 3) or \
+								tuple (c[c[:, :, 1].argmax ()][0])[1] < (height * 2 / 3):
 					continue
 				ribbon = c
-				ribbon_colour = n	# n <- number of colour
-				print(file_name, "ribbon, colour: ", str(n))
+				ribbon_colour = n  # n <- number of colour
+				print (file_name, "ribbon, colour: ", str (n))
 				break;
 
 		# SAVE:
@@ -60,7 +61,7 @@ def find_ribbon(image, file_name):
 	return results_array, ribbon_colour
 
 
-def make_decision(result_of_processing):
+def make_decision(card):
 	# TODO compare results and make a decision
 	# COMPARE:
 	a = 3
