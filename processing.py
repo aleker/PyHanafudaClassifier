@@ -51,7 +51,7 @@ def find_ribbon (image, file_name):
 					continue
 				ribbon = c
 				ribbon_colour = n  # n <- number of colour
-				print (file_name, "ribbon, colour: ", str (n))
+				# print (file_name, "ribbon, colour: ", str (n))
 				break;
 
 		# SAVE:
@@ -59,6 +59,7 @@ def find_ribbon (image, file_name):
 		computing.save_file (file_name, "ribbons_contours/" + str (n) + '/', red_mask)
 
 	return results_array, ribbon_colour
+
 
 
 def make_decision(card):
