@@ -55,7 +55,7 @@ def find_colour_count(image, file_name = None):
         masks.append(mask)
 
         if file_name is not None:
-            print(file_name, n, colourful_pixels_count)
+            # print(file_name, n, colourful_pixels_count)
             # SAVE MASK:
             image_with_mask = cv2.bitwise_and (image, image, mask=mask)
             save_file(file_name + name, "ribbons_masks/"+str(n)+"/", image_with_mask)
@@ -101,6 +101,7 @@ def compute_parameters():
         # TODO zmienić żeby dwa razy nie obliczał kolorów
         hu_moments_for_all_colours = computeHuMoments(original_image, file_key)
         facts_dictionary[file_key].append(hu_moments_for_all_colours)
+
     print("REFERENCE pictures computed.")
 
 

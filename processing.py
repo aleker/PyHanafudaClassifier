@@ -52,6 +52,7 @@ def scaleImage(image):
 
 
 def cropCardFromPicture(contour_of_card, image):
+    # TODO rotation
     height, width = image.shape[:2]
     # compute angle of contour
     (x, y), (MA, ma), angle = cv2.fitEllipse(contour_of_card)
@@ -86,7 +87,7 @@ def cropCardFromPicture(contour_of_card, image):
 
 def findCardShape(colour_image, filename):
     gray_image = cv2.cvtColor(colour_image, cv2.COLOR_BGR2GRAY)
-    # CANNY:
+    # EDGES:
     image = cv2.GaussianBlur(gray_image, (5, 5), 0)
     edges = cv2.Canny(image, threshold1=500, threshold2=1100, apertureSize=5)
     kernel = np.ones((1,1), np.uint8)
@@ -116,7 +117,7 @@ def findCardShape(colour_image, filename):
 
 def findRibbon(image, file_name):
     width, height = image.shape[:2]
-    print('wh: ', width, height)
+    area = width*height
     results_array, masks_array = computing.find_colour_count(image.copy(), file_name)
     ribbon_colour = None
     for n, mask in enumerate(masks_array[:2]):
@@ -135,7 +136,8 @@ def findRibbon(image, file_name):
         cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:10]
         ribbon = None
         for c in cnts:
-            if cv2.contourArea(c) > 3000 and cv2.arcLength(c, closed=True) > 200:
+            # if cv2.contourArea(c) > 3000 and cv2.arcLength(c, closed=True) > 200:     #(ref 189x111 = 20979)
+            if cv2.contourArea(c) > int(area/8):
                 if tuple(c[c[:, :, 1].argmin()][0])[1] > (height / 3) or \
                                 tuple(c[c[:, :, 1].argmax()][0])[1] < (height * 2 / 3):
                     continue
@@ -146,13 +148,13 @@ def findRibbon(image, file_name):
 
         # SAVE:
         cv2.drawContours(red_mask, [ribbon], -1, (0, 255, 0), 3)
-        computing.save_file(file_name, "ribbons_contours/" + str(n) + '/', image)
+        computing.save_file(file_name, "ribbons_contours/" + str(n) + '/', red_mask)
 
     return results_array, ribbon_colour
 
 
 def makeDecision(card):
-    # TODO compare results and make a decision
+    # TODO binary tree
     print('CARD: ', card.name_of_file)
     print('RIBBON: ', card.isRibbon)
 
@@ -173,7 +175,13 @@ if __name__ == '__main__':
     # REFERENCE PICTURES:
     computing.read_information(computing.reference_input)
     computing.compute_parameters()
+    #-- for testing--
+    for file_key in sorted(computing.facts_dictionary.keys()):
+        # READ FILE:
+        filename = os.path.join(os.getcwd(), computing.reference_input + file_key)
+        original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
+        findRibbon(original_image, 'A' + file_key)
 
     # TESTED PICTURES:
-    #read_pictures()
+    read_pictures()
 
