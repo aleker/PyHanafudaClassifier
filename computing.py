@@ -9,8 +9,8 @@ import card
 
 
 name = ''
-info_input = 'pictures/'
-proces_input = 'pictures/'
+reference_input = 'pictures/'
+test_input = 'pictures_for_testing/'
 
 # { name_of_file : [month, pkt, [colours], [[hu_moments_red], [hu_moments_blue], [hu_moments_white]] }
 facts_dictionary = {}
@@ -73,7 +73,7 @@ def computeHuMoments (image, file_name):
 		# hu moments - silhouette
 		hu_moments = cv2.HuMoments(cv2.moments(cv2.cvtColor(white_mask, cv2.COLOR_BGR2GRAY))).flatten()
 		hu_moments_for_all_colours.append(hu_moments)
-		print (file_name, n, "\n", hu_moments)
+		# print (file_name, n, "\n", hu_moments)
 
 		# SAVE:
 		save_file (file_name, "hu_moments/" + str (n) + '/', white_mask)
@@ -84,7 +84,7 @@ def computeHuMoments (image, file_name):
 def compute_parameters():
 	for file_key in sorted (facts_dictionary.keys ()):
 		# READ FILE:
-		filename = os.path.join (os.getcwd (), info_input + file_key)
+		filename = os.path.join (os.getcwd (), reference_input + file_key)
 		original_image = cv2.imread (filename, cv2.IMREAD_COLOR)
 		image = cv2.cvtColor (original_image, cv2.COLOR_BGR2GRAY)
 
