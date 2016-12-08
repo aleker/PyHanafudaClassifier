@@ -70,7 +70,7 @@ def cropCardFromPicture(contour_of_card, image):
         # calculations for center of rotation in [0,0] coordinates so:
         x = vertex[0][0] - cX
         y = vertex[0][1] - cY
-        angle_in_radians = math.radians(angle_to_full)
+        angle_in_radians = math.radians(-angle_to_full)
         x_prim = cX + y * math.sin(angle_in_radians) + x * math.cos(angle_in_radians)
         y_prim = cY + y * math.cos(angle_in_radians) - x * math.sin(angle_in_radians)
         vertex[0][0] = x_prim
