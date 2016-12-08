@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import computing
 import card
 import argparse
+import math
 
 
 def picture_processing(file_path):
@@ -56,32 +57,36 @@ def cropCardFromPicture(contour_of_card, image):
     height, width = image.shape[:2]
     # compute angle of contour
     (x, y), (MA, ma), angle = cv2.fitEllipse(contour_of_card)
-    angle_to_full = -180.0 + angle
+    angle_to_full = 180.0 - angle
     # compute the center of the contour
     M = cv2.moments(contour_of_card)
     cX = int(M["m10"] / M["m00"])
     cY = int(M["m01"] / M["m00"])
     # rotate
-    M = cv2.getRotationMatrix2D((cX, cY), angle_to_full, 1)
+    M = cv2.getRotationMatrix2D((cX, cY), -angle_to_full, 1)
     dst = cv2.warpAffine(image, M, (width, height))
 
-    leftmost = tuple(contour_of_card[contour_of_card[:,:,0].argmin()][0])
-    rightmost = tuple(contour_of_card[contour_of_card[:,:,0].argmax()][0])
-    topmost = tuple(contour_of_card[contour_of_card[:,:,1].argmin()][0])
-    bottommost = tuple(contour_of_card[contour_of_card[:,:,1].argmax()][0])
-    width_of_contour = abs(rightmost[0] - leftmost[0])
-    height_of_contour = abs(bottommost[1] - topmost[1])
+    for vertex in contour_of_card:
+        # calculations for center of rotation in [0,0] coordinates so:
+        x = vertex[0][0] - cX
+        y = vertex[0][1] - cY
+        angle_in_radians = math.radians(angle_to_full)
+        x_prim = cX + y * math.sin(angle_in_radians) + x * math.cos(angle_in_radians)
+        y_prim = cY + y * math.cos(angle_in_radians) - x * math.sin(angle_in_radians)
+        vertex[0][0] = x_prim
+        vertex[0][1] = y_prim
 
-    x_difference = int((np.argmin([topmost[0], bottommost[0]]) - leftmost[0]) / 2)
-    y_difference = int((np.argmin([leftmost[1], rightmost[1]]) - topmost[1]) / 2)
+    leftmost = tuple(contour_of_card[contour_of_card[:, :, 0].argmin()][0])
+    rightmost = tuple(contour_of_card[contour_of_card[:, :, 0].argmax()][0])
+    topmost = tuple(contour_of_card[contour_of_card[:, :, 1].argmin()][0])
+    bottommost = tuple(contour_of_card[contour_of_card[:, :, 1].argmax()][0])
 
-    #cropped = dst[(topmost[1] + y_difference):(bottommost[1] - y_difference), (leftmost[0] + x_difference):(rightmost[0] - x_difference)]     # [startY:endY , startX:endX]
-    cropped = image[topmost[1]:bottommost[1], leftmost[0]:rightmost[0]]  # [startY:endY , startX:endX]
+    cropped = dst[topmost[1]:bottommost[1], leftmost[0]:rightmost[0]]  # [startY:endY , startX:endX]
 
     # Show the output image
-    # cv2.imshow('Output', cropped)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Output', cropped)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return cropped
 
 
