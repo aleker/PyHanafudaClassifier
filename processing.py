@@ -92,9 +92,9 @@ def cropCardFromPicture(contour_of_card, image):
     scaled = cv2.resize(warp, (computing.card_width, computing.card_height), interpolation = cv2.INTER_CUBIC)
 
     # SHOW THE OUTPUT:
-    cv2.imshow('Output', scaled)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Output', scaled)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     return scaled
 
 
@@ -171,29 +171,40 @@ def makeDecision(card):
     print('CARD: ', card.name_of_file)
     print('RIBBON: ', card.isRibbon)
 
+    characteristics = []
+    characteristics.append(card.colours_count_array)
+    characteristics.append(card.huMoments)
+
+    decision = clf_tree.predict(characteristics)
+    print('DECISION:', decision)
+
 
 def read_pictures():
     types = ('*.jpg', '*.JPG')
     files_list = []
     for type in types:
         files_list.extend(sorted(glob.glob(computing.test_input + type)))
+        print('TESTING pictures count:', len(files_list))
     for n, file in enumerate(files_list):
         # if n == 2:
         #  	break
         picture_processing(file)
-    print('TESTING pictures count:', len(files_list))
 
 
 if __name__ == '__main__':
     # REFERENCE PICTURES:
     computing.read_information(computing.reference_input)
     computing.compute_parameters()
-    #-- for testing--
-    for file_key in sorted(computing.facts_dictionary.keys()):
-        # READ FILE:
-        filename = os.path.join(os.getcwd(), computing.reference_input + file_key)
-        original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
-        findRibbon(original_image, 'A' + file_key)
+    global clf_tree
+    clf_tree = computing.createDecisionTree()
+
+    # #-- for testing--
+    # for file_key in sorted(computing.facts_dictionary.keys()):
+    #     # READ FILE:
+    #     filename = os.path.join(os.getcwd(), computing.reference_input + file_key)
+    #     original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
+    #     findRibbon(original_image, 'A' + file_key)
+    # # ---------------
 
     # TESTED PICTURES:
     read_pictures()

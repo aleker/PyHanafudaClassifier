@@ -5,6 +5,7 @@ import re
 import numpy as np
 from collections import namedtuple
 from tempfile import TemporaryFile
+from sklearn import tree
 
 import card
 
@@ -106,6 +107,22 @@ def compute_parameters():
         facts_dictionary[file_key].append(hu_moments_for_all_colours)
 
     print("REFERENCE pictures computed.")
+
+
+def createDecisionTree():
+    samples = []
+    labels = []
+    for card_key in facts_dictionary.keys():
+        features = []
+        for characteristic in facts_dictionary[card_key][2:]:
+            features.append(characteristic);
+        samples.append(features)
+        labels.append(card_key)
+    clf_tree = tree.DecisionTreeClassifier()
+    clf_tree = clf_tree.fit(samples, labels)
+
+    print("Decision Tree created.")
+    return clf_tree
 
 
 def save_file(file_name, output_folder, result):
