@@ -27,6 +27,7 @@ def picture_processing(file_path):
 
     for n, one_card_contour in enumerate(card_list):
         current_card = card.Card(str(n) + os.path.basename(file_path))
+        current_card.isRibbon = -1
         # take out card_picture from image:
         card_picture = cropCardFromPicture(one_card_contour, original_image.copy())
         # compute hu moments:
@@ -92,9 +93,9 @@ def cropCardFromPicture(contour_of_card, image):
     scaled = cv2.resize(warp, (computing.card_width, computing.card_height), interpolation = cv2.INTER_CUBIC)
 
     # SHOW THE OUTPUT:
-    # cv2.imshow('Output', scaled)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Output', scaled)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return scaled
 
 
@@ -172,11 +173,18 @@ def makeDecision(card):
     print('RIBBON: ', card.isRibbon)
 
     characteristics = []
-    characteristics.append(card.colours_count_array)
-    characteristics.append(card.huMoments)
+    if card.isRibbon is None:
+        card.isRibbon = -1
+    ribbon_decision = card.isRibbon + 1
+    characteristics.append(ribbon_decision)
+    for coordinate in card.colours_count_array:
+        characteristics.append(coordinate)
+    for colour in card.huMoments:
+        for moment in colour:
+            characteristics.append(moment)
 
     decision = clf_tree.predict(characteristics)
-    print('DECISION:', decision)
+    print('DECISION:', decision, '\n')
 
 
 def read_pictures():

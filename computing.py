@@ -16,7 +16,7 @@ card_proportion = 1.7
 card_width = 111
 card_height = 189
 
-# { name_of_file : [month, pkt, [colours], [[hu_moments_red], [hu_moments_blue], [hu_moments_white]] }
+# { name_of_file : [month, pkt, [colours], [hu_moments_red], [hu_moments_blue], [hu_moments_white] }
 facts_dictionary = {}
 # cards_list = []
 colour_boundaries = [  # ([B,G,R], [B,G,R])
@@ -27,13 +27,15 @@ colour_boundaries = [  # ([B,G,R], [B,G,R])
 
 
 def read_information(folder):
+    # TODO adding ribbon and its colour to dictionary
     files_list = sorted(glob.glob(folder + "*.jpg"))
     for file in files_list:
         file = os.path.basename(file)
         if file[0].isdigit():
-            file_atribiutes = file.split('.')[0].split('-')[:2]
+            file_atribiutes = file.split('.')[0].split('-')[:3]
             file_atribiutes[0] = int(float(file_atribiutes[0]))
             file_atribiutes[1] = int(float(re.findall(r'\d+', file_atribiutes[1])[0]))
+            file_atribiutes[2] = int(float(re.findall(r'\d+', file_atribiutes[2])[0]))
             facts_dictionary[file] = file_atribiutes
         # current_card = card.Card(file)
         # current_card.month = file_atribiutes[0]
@@ -99,12 +101,17 @@ def compute_parameters():
         # COMPUTE PARAMETERS:
         # colour count:
         (array_of_colour_values, _) = find_colour_count(original_image, file_key)
-        facts_dictionary[file_key].append(array_of_colour_values)
+        for coordinate in array_of_colour_values:
+            facts_dictionary[file_key].append(coordinate)
+        # facts_dictionary[file_key].append(array_of_colour_values)
 
         # hu_moments:
         # TODO zmienić żeby dwa razy nie obliczał kolorów
         hu_moments_for_all_colours = computeHuMoments(original_image, file_key)
-        facts_dictionary[file_key].append(hu_moments_for_all_colours)
+        for colour in hu_moments_for_all_colours:
+            for moment in colour:
+                facts_dictionary[file_key].append(moment)
+        # facts_dictionary[file_key].append(hu_moments_for_all_colours)
 
     print("REFERENCE pictures computed.")
 

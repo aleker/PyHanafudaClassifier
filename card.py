@@ -14,7 +14,7 @@ class Colour(Enum):
 class Card:
     month = None
     points = None
-    isRibbon = None
+    isRibbon = -1
     colours_count_array = []
     huMoments = []
 
