@@ -10,13 +10,13 @@ class Colour(Enum):
     WHITE = 2
 
 
-# TODO make class
 class Card:
     month = None
     points = None
     isRibbon = -1
     colours_count_array = []
     huMoments = []
+    number = None
 
     def __init__(self, name_of_file):
         self.name_of_file = name_of_file

@@ -8,11 +8,11 @@ import card
 import argparse
 import math
 from scipy import ndimage
+from PIL import Image
 
 # cart, c4.5 w skimage
 
 def picture_processing(file_path):
-    # TODO fill class
     # READ IMAGE:
     filename = os.path.join(os.getcwd(), file_path)
     original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
@@ -28,6 +28,7 @@ def picture_processing(file_path):
     for n, one_card_contour in enumerate(card_list):
         current_card = card.Card(str(n) + os.path.basename(file_path))
         current_card.isRibbon = -1
+        current_card.number = n
         # take out card_picture from image:
         card_picture = cropCardFromPicture(one_card_contour, original_image.copy())
         # compute hu moments:
@@ -36,7 +37,7 @@ def picture_processing(file_path):
         (current_card.colours_count_array, current_card.isRibbon) = findRibbon(card_picture, str(n) + os.path.basename(file_path))
 
         # DECISION:
-        makeDecision(current_card)
+        makeDecision(current_card, card_picture)
 
 
 def scaleImage(image):
@@ -91,11 +92,6 @@ def cropCardFromPicture(contour_of_card, image):
 
     # SCALE:
     scaled = cv2.resize(warp, (computing.card_width, computing.card_height), interpolation = cv2.INTER_CUBIC)
-
-    # SHOW THE OUTPUT:
-    cv2.imshow('Output', scaled)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
     return scaled
 
 
@@ -135,7 +131,6 @@ def findRibbon(image, file_name):
     results_array, masks_array = computing.find_colour_count(image.copy(), file_name)
     ribbon_colour = None
     for n, mask in enumerate(masks_array[:2]):
-        # TODO one more ribbon
         # red mask
         height, width = image.shape[:2]
         red_picture = np.zeros(image.shape, np.uint8)
@@ -167,8 +162,7 @@ def findRibbon(image, file_name):
     return results_array, ribbon_colour
 
 
-def makeDecision(card):
-    # TODO binary tree
+def makeDecision(card, card_picture):
     print('CARD: ', card.name_of_file)
     print('RIBBON: ', card.isRibbon)
 
@@ -182,10 +176,20 @@ def makeDecision(card):
     for colour in card.huMoments:
         for moment in colour:
             characteristics.append(moment)
-
     decision = clf_tree.predict(characteristics)
     print('DECISION:', decision, '\n')
 
+    # SAVE THE OUTPUT:
+    original_filename = os.path.join(os.getcwd(), computing.reference_input + decision[0])
+    original_image = cv2.imread(original_filename, cv2.IMREAD_COLOR)
+    merged = np.concatenate((card_picture, original_image), axis=1)
+    cv2.imwrite(computing.result_dir + str(card.number) + card.name_of_file, merged)
+    # cv2.imshow('Output', merged)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    #
+    # http://scikit-learn.org/stable/modules/tree.html
+    # http://stackoverflow.com/questions/35082140/preprocessing-in-scikit-learn-single-sample-depreciation-warning
 
 def read_pictures():
     types = ('*.jpg', '*.JPG')

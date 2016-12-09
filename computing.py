@@ -6,12 +6,14 @@ import numpy as np
 from collections import namedtuple
 from tempfile import TemporaryFile
 from sklearn import tree
+import pydotplus
 
 import card
 
 name = ''
 reference_input = 'pictures/'
 test_input = 'pictures_for_testing/'
+result_dir = 'result/'
 card_proportion = 1.7
 card_width = 111
 card_height = 189
@@ -27,7 +29,7 @@ colour_boundaries = [  # ([B,G,R], [B,G,R])
 
 
 def read_information(folder):
-    # TODO adding ribbon and its colour to dictionary
+    # TODO więcej przykładów do nauki drzewa
     files_list = sorted(glob.glob(folder + "*.jpg"))
     for file in files_list:
         file = os.path.basename(file)
@@ -127,6 +129,10 @@ def createDecisionTree():
         labels.append(card_key)
     clf_tree = tree.DecisionTreeClassifier()
     clf_tree = clf_tree.fit(samples, labels)
+
+    with open(result_dir + "tree.dot", 'w') as f:
+        f = tree.export_graphviz(clf_tree, out_file=f)
+    os.unlink(result_dir + 'tree.dot')
 
     print("Decision Tree created.")
     return clf_tree
