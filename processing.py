@@ -7,7 +7,9 @@ import computing
 import card
 import argparse
 import math
+from scipy import ndimage
 
+# cart, c4.5 w skimage
 
 def picture_processing(file_path):
     # TODO fill class
@@ -53,41 +55,47 @@ def scaleImage(image):
 
 
 def cropCardFromPicture(contour_of_card, image):
-    # TODO rotation
-    height, width = image.shape[:2]
-    # compute angle of contour
-    (x, y), (MA, ma), angle = cv2.fitEllipse(contour_of_card)
-    angle_to_full = 180.0 - angle
-    # compute the center of the contour
-    M = cv2.moments(contour_of_card)
-    cX = int(M["m10"] / M["m00"])
-    cY = int(M["m01"] / M["m00"])
-    # rotate
-    M = cv2.getRotationMatrix2D((cX, cY), -angle_to_full, 1)
-    dst = cv2.warpAffine(image, M, (width, height))
+    # CONTOUR OF CARD AS RECTANGLE SHAPE:
+    pts = contour_of_card.reshape(4,2)
+    rect = np.zeros((4,2), dtype = "float32")
 
-    for vertex in contour_of_card:
-        # calculations for center of rotation in [0,0] coordinates so:
-        x = vertex[0][0] - cX
-        y = vertex[0][1] - cY
-        angle_in_radians = math.radians(-angle_to_full)
-        x_prim = cX + y * math.sin(angle_in_radians) + x * math.cos(angle_in_radians)
-        y_prim = cY + y * math.cos(angle_in_radians) - x * math.sin(angle_in_radians)
-        vertex[0][0] = x_prim
-        vertex[0][1] = y_prim
+    s = pts.sum(axis=1)
+    rect[0] = pts[np.argmin(s)]         # top left
+    rect[2] = pts[np.argmax(s)]         # bottom right
+    diff = np.diff(pts, axis=1)
+    rect[1] = pts[np.argmin(diff)]      # top right
+    rect[3] = pts[np.argmax(diff)]      # bottom left
 
-    leftmost = tuple(contour_of_card[contour_of_card[:, :, 0].argmin()][0])
-    rightmost = tuple(contour_of_card[contour_of_card[:, :, 0].argmax()][0])
-    topmost = tuple(contour_of_card[contour_of_card[:, :, 1].argmin()][0])
-    bottommost = tuple(contour_of_card[contour_of_card[:, :, 1].argmax()][0])
+    (tl, tr, br, bl) = rect             # create figure (not rectangle yet)
+    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    maxWidth = max(int(widthA), int(widthB))
+    maxHeight = max(int(heightA), int(heightB))
+    minWidth = min(int(widthA), int(widthB))
 
-    cropped = dst[topmost[1]:bottommost[1], leftmost[0]:rightmost[0]]  # [startY:endY , startX:endX]
+    dst = np.array([                    # destination points
+        [0, 0],
+        [maxWidth - 1, 0],
+        [maxWidth - 1, maxHeight - 1],
+        [0, maxHeight - 1]], dtype="float32")
 
-    # Show the output image
-    cv2.imshow('Output', cropped)
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warp = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+
+    # ROTATE IF NEEDED:
+    if minWidth > maxHeight:
+        warp = ndimage.rotate(warp.copy(), 90)
+
+    # SCALE:
+    scaled = cv2.resize(warp, (computing.card_width, computing.card_height), interpolation = cv2.INTER_CUBIC)
+
+    # SHOW THE OUTPUT:
+    cv2.imshow('Output', scaled)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    return cropped
+    return scaled
 
 
 def findCardShape(colour_image, filename):
@@ -109,7 +117,7 @@ def findCardShape(colour_image, filename):
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
         if len(approx) == 4 and cv2.contourArea(c) > 700:      # [Next, Previous, First_child, Parent] hierarchy[0][n][3] == -1
-            cards.append(c)
+            cards.append(approx)
 
     # SAVING:
     # computing.save_file('e' + filename, 'testing_output/', edge_dilation)

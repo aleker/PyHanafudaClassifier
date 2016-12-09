@@ -11,6 +11,9 @@ import card
 name = ''
 reference_input = 'pictures/'
 test_input = 'pictures_for_testing/'
+card_proportion = 1.7
+card_width = 111
+card_height = 189
 
 # { name_of_file : [month, pkt, [colours], [[hu_moments_red], [hu_moments_blue], [hu_moments_white]] }
 facts_dictionary = {}
