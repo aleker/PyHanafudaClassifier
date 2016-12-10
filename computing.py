@@ -22,7 +22,6 @@ colour_boundaries = [  # ([B,G,R], [B,G,R])
 
 
 def read_information(folder):
-    # TODO więcej przykładów do nauki drzewa
     files_list = sorted(glob.glob(folder + "*.jpg"))
     for file in files_list:
         file = os.path.basename(file)
@@ -96,7 +95,6 @@ def compute_parameters():
             facts_dictionary[file_key].append(coordinate)
 
         # 2. hu_moments:
-        # TODO zmienić żeby dwa razy nie obliczał kolorów
         hu_moments_for_all_colours = computeHuMoments(original_image, file_key)
         for colour in hu_moments_for_all_colours:
             for moment in colour:
