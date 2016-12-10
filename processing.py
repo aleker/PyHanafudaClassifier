@@ -2,15 +2,12 @@ import cv2
 import glob
 import os
 import numpy as np
-from matplotlib import pyplot as plt
 import computing
-import card
-import argparse
-import math
 from scipy import ndimage
-from PIL import Image
 
-# cart, c4.5 w skimage
+import card
+import configuration
+
 
 def picture_processing(file_path):
     # READ IMAGE:
@@ -18,13 +15,13 @@ def picture_processing(file_path):
     original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
 
     # PROCESSING:
-    # scale image (max width(height) is 500):
-    original_image = scaleImage(original_image)
-    gray_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+    # scale image (max width(height) is configuration.max_length):
+    width, height = original_image.shape[:2]
+    if width > configuration.max_length or height > configuration.max_length:
+        original_image = scaleImage(original_image)
 
     # find cards on picture:
     card_list = findCardShape(original_image.copy(), os.path.basename(file_path))
-
     for n, one_card_contour in enumerate(card_list):
         current_card = card.Card(str(n) + os.path.basename(file_path))
         current_card.isRibbon = -1
@@ -36,14 +33,14 @@ def picture_processing(file_path):
         # find ribbon:
         (current_card.colours_count_array, current_card.isRibbon) = findRibbon(card_picture, str(n) + os.path.basename(file_path))
 
-        # DECISION:
+    # DECISION:
         makeDecision(current_card, card_picture)
 
 
 def scaleImage(image):
     # SCALING:
     height, width = image.shape[:2]
-    max_width = 500.0
+    max_width = configuration.max_length
     if height > width:
         coefficient = height / max_width
         new_height = int(max_width)
@@ -91,7 +88,7 @@ def cropCardFromPicture(contour_of_card, image):
         warp = ndimage.rotate(warp.copy(), 90)
 
     # SCALE:
-    scaled = cv2.resize(warp, (computing.card_width, computing.card_height), interpolation = cv2.INTER_CUBIC)
+    scaled = cv2.resize(warp, (configuration.card_width, configuration.card_height), interpolation = cv2.INTER_CUBIC)
     return scaled
 
 
@@ -100,9 +97,9 @@ def findCardShape(colour_image, filename):
     # EDGES:
     image = cv2.GaussianBlur(gray_image, (5, 5), 0)
     edges = cv2.Canny(image, threshold1=500, threshold2=1100, apertureSize=5)
-    kernel = np.ones((1,1), np.uint8)
+    kernel = np.ones((1, 1), np.uint8)
     opening = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
-    kernel = np.ones((10, 10), np.uint8)
+    kernel = np.ones((configuration.morphology_boundary, configuration.morphology_boundary), np.uint8)
     closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
     edge_dilation = closing
 
@@ -113,11 +110,18 @@ def findCardShape(colour_image, filename):
     for n,c in enumerate(cnts):
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-        if len(approx) == 4 and cv2.contourArea(c) > 700:      # [Next, Previous, First_child, Parent] hierarchy[0][n][3] == -1
+        if len(approx) == 4 and cv2.contourArea(c) > configuration.min_area:      # [Next, Previous, First_child, Parent] hierarchy[0][n][3] == -1
             cards.append(approx)
 
+    width, height = image.shape[:2]
+    image_size = width * height
+    for c in cards:
+        if cv2.contourArea(c) > (image_size / 2):
+            cards_2 = [c]
+            cards = cards_2
+            break
     # SAVING:
-    # computing.save_file('e' + filename, 'testing_output/', edge_dilation)
+    computing.save_file('e' + filename, 'testing_output/', edge_dilation)
     cv2.drawContours(colour_image, cards, -1, (0, 255, 0), 3)
     computing.save_file(filename, '1_find_shape_of_card/', colour_image)
     # print(filename, len(cnts), len(cards))
@@ -145,8 +149,9 @@ def findRibbon(image, file_name):
         cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:10]
         ribbon = None
         for c in cnts:
-            # if cv2.contourArea(c) > 3000 and cv2.arcLength(c, closed=True) > 200:     #(ref 189x111 = 20979)
-            if cv2.contourArea(c) > int(area/8):
+            peri = cv2.arcLength(c, True)
+            approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+            if cv2.contourArea(c) > int(area/8) and len(approx) < 5:
                 if tuple(c[c[:, :, 1].argmin()][0])[1] > (height / 3) or \
                                 tuple(c[c[:, :, 1].argmax()][0])[1] < (height * 2 / 3):
                     continue
@@ -180,44 +185,29 @@ def makeDecision(card, card_picture):
     print('DECISION:', decision, '\n')
 
     # SAVE THE OUTPUT:
-    original_filename = os.path.join(os.getcwd(), computing.reference_input + decision[0])
+    original_filename = os.path.join(os.getcwd(), configuration.reference_input + decision[0])
     original_image = cv2.imread(original_filename, cv2.IMREAD_COLOR)
     merged = np.concatenate((card_picture, original_image), axis=1)
-    cv2.imwrite(computing.result_dir + str(card.number) + card.name_of_file, merged)
-    # cv2.imshow('Output', merged)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    #
-    # http://scikit-learn.org/stable/modules/tree.html
-    # http://stackoverflow.com/questions/35082140/preprocessing-in-scikit-learn-single-sample-depreciation-warning
+    cv2.imwrite(configuration.result_dir + card.name_of_file, merged)
+
 
 def read_pictures():
     types = ('*.jpg', '*.JPG')
     files_list = []
     for type in types:
-        files_list.extend(sorted(glob.glob(computing.test_input + type)))
+        files_list.extend(sorted(glob.glob(configuration.test_input + type)))
         print('TESTING pictures count:', len(files_list))
     for n, file in enumerate(files_list):
-        # if n == 2:
-        #  	break
         picture_processing(file)
 
 
 if __name__ == '__main__':
     # REFERENCE PICTURES:
-    computing.read_information(computing.reference_input)
+    computing.read_information(configuration.reference_input)
     computing.compute_parameters()
     global clf_tree
     clf_tree = computing.createDecisionTree()
 
-    # #-- for testing--
-    # for file_key in sorted(computing.facts_dictionary.keys()):
-    #     # READ FILE:
-    #     filename = os.path.join(os.getcwd(), computing.reference_input + file_key)
-    #     original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
-    #     findRibbon(original_image, 'A' + file_key)
-    # # ---------------
-
-    # TESTED PICTURES:
+    # TEST PICTURES:
     read_pictures()
 

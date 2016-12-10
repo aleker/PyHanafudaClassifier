@@ -1,6 +1,3 @@
-import cv2
-import numpy as np
-import computing
 from enum import Enum
 
 

@@ -8,23 +8,16 @@ from tempfile import TemporaryFile
 from sklearn import tree
 import pydotplus
 
-import card
+import configuration
 
-name = ''
-reference_input = 'pictures/'
-test_input = 'pictures_for_testing/'
-result_dir = 'result/'
-card_proportion = 1.7
-card_width = 111
-card_height = 189
 
 # { name_of_file : [month, pkt, [colours], [hu_moments_red], [hu_moments_blue], [hu_moments_white] }
 facts_dictionary = {}
-# cards_list = []
+
 colour_boundaries = [  # ([B,G,R], [B,G,R])
     ([4, 9, 86], [80, 88, 220]),  # RED
     ([80, 31, 4], [220, 100, 60]),  # BLUE
-    ([230, 230, 230], [255, 255, 255])  # WHITE
+    ([180, 160, 160], [255, 255, 255])
 ]
 
 
@@ -39,10 +32,6 @@ def read_information(folder):
             file_atribiutes[1] = int(float(re.findall(r'\d+', file_atribiutes[1])[0]))
             file_atribiutes[2] = int(float(re.findall(r'\d+', file_atribiutes[2])[0]))
             facts_dictionary[file] = file_atribiutes
-        # current_card = card.Card(file)
-        # current_card.month = file_atribiutes[0]
-        # current_card.points = file_atribiutes[1]
-        # cards_list.append(current_card)
     print('REFERENCE pictures count:', len(facts_dictionary))
 
 
@@ -66,7 +55,7 @@ def find_colour_count(image, file_name = None):
             # print(file_name, n, colourful_pixels_count)
             # SAVE MASK:
             image_with_mask = cv2.bitwise_and (image, image, mask=mask)
-            save_file(file_name + name, "ribbons_masks/"+str(n)+"/", image_with_mask)
+            save_file(file_name + configuration.name, "ribbons_masks/"+str(n)+"/", image_with_mask)
 
     return colourful_count, masks
 
@@ -96,24 +85,22 @@ def computeHuMoments(image, file_name = None):
 def compute_parameters():
     for file_key in sorted(facts_dictionary.keys()):
         # READ FILE:
-        filename = os.path.join(os.getcwd(), reference_input + file_key)
+        filename = os.path.join(os.getcwd(), configuration.reference_input + file_key)
         original_image = cv2.imread(filename, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
 
         # COMPUTE PARAMETERS:
-        # colour count:
+        # 1. colour count:
         (array_of_colour_values, _) = find_colour_count(original_image, file_key)
         for coordinate in array_of_colour_values:
             facts_dictionary[file_key].append(coordinate)
-        # facts_dictionary[file_key].append(array_of_colour_values)
 
-        # hu_moments:
+        # 2. hu_moments:
         # TODO zmienić żeby dwa razy nie obliczał kolorów
         hu_moments_for_all_colours = computeHuMoments(original_image, file_key)
         for colour in hu_moments_for_all_colours:
             for moment in colour:
                 facts_dictionary[file_key].append(moment)
-        # facts_dictionary[file_key].append(hu_moments_for_all_colours)
 
     print("REFERENCE pictures computed.")
 
@@ -130,9 +117,9 @@ def createDecisionTree():
     clf_tree = tree.DecisionTreeClassifier()
     clf_tree = clf_tree.fit(samples, labels)
 
-    with open(result_dir + "tree.dot", 'w') as f:
+    with open(configuration.result_dir + "tree.dot", 'w') as f:
         f = tree.export_graphviz(clf_tree, out_file=f)
-    os.unlink(result_dir + 'tree.dot')
+    os.unlink(configuration.result_dir + 'tree.dot')
 
     print("Decision Tree created.")
     return clf_tree
@@ -142,5 +129,5 @@ def save_file(file_name, output_folder, result):
     output_path = os.path.join(os.getcwd(), output_folder)
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    new_path = os.path.join(output_path, file_name + name)
+    new_path = os.path.join(output_path, file_name + configuration.name)
     cv2.imwrite(new_path, result)
