@@ -11,7 +11,7 @@ card_height = 189
 # for testing and comparing:
 name = ''
 # min area of founded card's contour
-min_area = 2000
+min_area = 3000
 morphology_boundary = 6
 # max length of width or height without picture scaling
 max_length = 500
