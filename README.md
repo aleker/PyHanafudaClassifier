@@ -63,9 +63,9 @@ Than function
 ```
 is called.
 
-<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg" width="200">
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967b.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967.jpg)
+<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg" width="100">
+<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967b.jpg" width="100">
+<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967.jpg" width="100">
 
 Results
 -------
