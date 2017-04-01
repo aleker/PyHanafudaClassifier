@@ -67,7 +67,8 @@ Results
 -------
 
 This project focused on image processing, not machine learning. For this reason decision tree has't got more training cards than one of every type (in sum, 48 cards) so results was halfway correct.
-This is the example. On the left side are card images cut out from original image.
+
+Example result is presented below. On the left side are card images cut out from original image.
 On the right side of every founded card are cards assigned by classifier.
 
 INPUT:
