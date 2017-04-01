@@ -63,7 +63,7 @@ Than function
 ```
 is called.
 
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg =250x)
 ![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967b.jpg)
 ![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967.jpg)
 
