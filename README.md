@@ -53,8 +53,8 @@ As input program receives photo of cards. Application separates every card from 
 Then program scales and turns them so they will be ready for image processing. 
 
 ![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112547380.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P1110883.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P1110886.jpg)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P1110883.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P1110886.JPG)
 
 Than function
 
@@ -62,10 +62,7 @@ Than function
 ( _ , rebbons_colour) = findRibbon(image, file_name)
 ```
 is called.
-
-<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg" width="100">
-<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967b.jpg" width="100">
-<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967.jpg" width="100">
+<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/IMG_20161210_112743967.jpg" width="100"/> <img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967b.jpg" width="100"/> <img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0IMG_20161210_112743967.jpg" width="100"/>
 
 Results
 -------
@@ -76,13 +73,13 @@ On the right side of every founded card are cards assigned by classifier.
 
 INPUT:
 
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P11108867.jpg)
+<img src="https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/P11108867.JPG" width="300">
 
 OUTPUT:
 
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0P1110886.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/1P1110886.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/2P1110886.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/3P1110886.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/4P1110886.jpg)
-![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/5P1110886.jpg)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/0P1110886.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/1P1110886.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/2P1110886.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/3P1110886.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/4P1110886.JPG)
+![](https://github.com/aleker/PyHanafudaClassificator/blob/master/processing_examples/5P1110886.JPG)
