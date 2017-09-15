@@ -3,7 +3,7 @@ About Hanafuda
 
 Hanafuda are traditional japanese playing cards that are used to play a number of games. There are twelve suits, representing months (with four cards of every suit). Each month is designated by a different flower. There are two common and two special cards (with additional design) in every suit. Usually one of the special cards is designed with red or blue ribbon. Every card in pack is unique.
 
-Example of cards representing Januar:
+Example of cards representing January:
 
 ![](https://github.com/aleker/PyHanafudaClassificator/blob/master/pictures/01-01pkt-0r-a.jpg)
 ![](https://github.com/aleker/PyHanafudaClassificator/blob/master/pictures/01-01pkt-0r-b.jpg)
